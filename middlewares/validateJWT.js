@@ -1,6 +1,6 @@
 const { response } = require('express');
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+const User = require("../models/usuario"); // nombre corregido
 
 const validateJWT = async (req, res = response, next) => {
     const authHeader = req.headers["authorization"];

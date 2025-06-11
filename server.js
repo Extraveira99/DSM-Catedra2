@@ -1,9 +1,9 @@
-// server.js
 const express = require('express');
 const http = require('http');
 const morgan = require('morgan');
 const cors = require('cors');
 const db = require('./config/database');
+require('dotenv').config();
 
 class Server {
   constructor() {
@@ -13,18 +13,13 @@ class Server {
 
     this.paths = {
       auth:  '/api/auth',
-      users: '/api/users',
-      books: '/api/books',
-      loans: '/api/loans'
+      books: '/api/libros',
+      loans: '/api/prestamos'
     };
 
-    // Conexión a la base de datos
+
     this.dbConnection();
-
-    // Middlewares globales
     this.middlewares();
-
-    // Rutas
     this.routes();
   }
 
@@ -46,13 +41,11 @@ class Server {
 
   routes() {
 
-    this.app.use(this.paths.auth,  require('./routes/auth'));
+    this.app.use(this.paths.auth,  require('./routes/auth.routes'));
 
-    this.app.use(this.paths.users, require('./routes/users'));
+    this.app.use(this.paths.books, require('./routes/libro.routes'));
 
-    this.app.use(this.paths.books, require('./routes/books'));
-
-    this.app.use(this.paths.loans, require('./routes/loans'));
+    this.app.use(this.paths.loans, require('./routes/prestamo.routes'));
   }
 
   listen() {
@@ -60,6 +53,11 @@ class Server {
       console.log(`Server running at http://localhost:${this.port}`);
     });
   }
+}
+
+if (require.main === module) {
+  const server = new Server();
+  server.listen();
 }
 
 module.exports = Server;
