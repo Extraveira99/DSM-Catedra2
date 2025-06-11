@@ -1,21 +1,37 @@
 'use strict';
-module.exports = (sequelize, DataTypes) => {
-  const Prestamo = sequelize.define('Prestamo', {
-    fecha_prestamo: { type: DataTypes.DATEONLY, allowNull: false },
-    fecha_devolucion: { type: DataTypes.DATEONLY },
-    estado: {
-      type: DataTypes.ENUM('prestado','devuelto','con retraso'),
-      defaultValue: 'prestado'
-    }
-  }, {
-    tableName: 'Prestamos',
-    timestamps: true
-  });
+const { DataTypes, Model } = require('sequelize');
+const sequelize = require('../config/database');
 
-  Prestamo.associate = models => {
-    Prestamo.belongsTo(models.Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
-    Prestamo.belongsTo(models.Libro,   { foreignKey: 'libroId',   as: 'libro' });
-  };
+class Prestamo extends Model {}
 
-  return Prestamo;
+Prestamo.init({
+  usuarioId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  libroId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  fecha_prestamo: {
+    type: DataTypes.DATEONLY,
+    allowNull: false
+  },
+  fecha_devolucion: DataTypes.DATEONLY,
+  estado: {
+    type: DataTypes.ENUM('prestado','devuelto','con retraso'),
+    defaultValue: 'prestado'
+  }
+}, {
+  sequelize,
+  modelName: 'Prestamo',
+  tableName: 'Prestamos',
+  timestamps: true
+});
+
+Prestamo.associate = models => {
+  Prestamo.belongsTo(models.Usuario, { foreignKey: 'usuarioId', as: 'usuario' });
+  Prestamo.belongsTo(models.Libro, { foreignKey: 'libroId', as: 'libro' });
 };
+
+module.exports = Prestamo;

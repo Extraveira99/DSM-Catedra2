@@ -1,20 +1,36 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
-  const Libro = sequelize.define('Libro', {
-    titulo: { type: DataTypes.STRING, allowNull: false },
-    autor: { type: DataTypes.STRING, allowNull: false },
-    genero: { type: DataTypes.STRING },
-    fecha_publicacion: { type: DataTypes.DATEONLY },
-    disponible: { type: DataTypes.BOOLEAN, defaultValue: true },
-    eliminado: { type: DataTypes.BOOLEAN, defaultValue: false }
-  }, {
-    tableName: 'Libros',
-    timestamps: true
-  });
+const { DataTypes, Model } = require('sequelize');
+const sequelize = require('../config/database');
 
-  Libro.associate = models => {
-    Libro.hasMany(models.Prestamo, { foreignKey: 'libroId', as: 'prestamos' });
-  };
+class Libro extends Model {}
 
-  return Libro;
+Libro.init({
+  titulo: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  autor: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  genero: DataTypes.STRING,
+  fecha_publicacion: DataTypes.DATEONLY,
+  disponible: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
+  eliminado: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  }
+}, {
+  sequelize,
+  modelName: 'Libro',
+  tableName: 'Libros',
+  timestamps: true
+});
+
+Libro.associate = models => {
+  Libro.hasMany(models.Prestamo, { foreignKey: 'libroId', as: 'prestamos' });
 };
+
+module.exports = Libro;
