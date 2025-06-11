@@ -1,27 +1,19 @@
 const { Router } = require('express');
+const validateJWT    = require('../middlewares/validateJWT');
+const bookController = require('../controllers/bookController');
+
 const router = Router();
 
-const validateJWT = require('../middlewares/validateJWT');
+router.post('/', validateJWT, bookController.create);
 
-const {
-  create: addBook,
-  list: listBooks,
-  get: getBook,
-  update: updateBook,
-  remove: deleteBook,
-  restore: restoreBook
-} = require('../controllers/bookController');
+router.get('/', bookController.list);
 
-router.post('/libros', validateJWT, addBook);
+router.get('/:id', bookController.get);
 
-router.get('/libros', listBooks);
+router.put('/:id', validateJWT, bookController.update);
 
-router.get('/libros/:id', getBook);
+router.delete('/:id', validateJWT, bookController.remove);
 
-router.put('/libros/:id', validateJWT, updateBook);
-
-router.delete('/libros/:id', validateJWT, deleteBook);
-
-router.put('/libros/:id/restore', validateJWT, restoreBook);
+router.put('/:id/restore', validateJWT, bookController.restore);
 
 module.exports = router;

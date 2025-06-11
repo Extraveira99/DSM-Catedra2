@@ -67,39 +67,61 @@ module.exports = {
     }
   },
 
-  async list(req, res, next) {
-    try {
-      const loans = await Prestamo.findAll({
-        include: [
-          { model: Usuario, as: 'usuario', attributes: ['id', 'nombre', 'apellido', 'correo'] },
-          { model: Libro, as: 'libro', attributes: ['id', 'titulo', 'autor'] }
-        ]
-      });
+async list(req, res, next) {
+  try {
+    const loans = await Prestamo.findAll({
+      include: [
+        {
+          model: Usuario,
+          as: 'usuario',
+          attributes: ['id', 'nombre', 'apellido', 'correo']
+        },
+        {
+          model: Libro,
+          as: 'libro',
+          attributes: ['id', 'titulo', 'autor']
+        }
+      ]
+    });
 
-      return res.json({ success: true, data: loans });
-    } catch (err) {
-      next(err);
-    }
-  },
+    const result = loans.map(loan => ({
+      id: loan.id,
+      fecha_prestamo: loan.fecha_prestamo,
+      fecha_devolucion: loan.fecha_devolucion,
+      estado: loan.estado,
+      usuario: loan.usuario,
+      libro:   loan.libro
+    }));
 
-  async byUser(req, res, next) {
-    try {
-      const { usuario_id } = req.params;
-
-      const user = await Usuario.findByPk(usuario_id);
-      if (!user) {
-        return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
-      }
-
-      const loans = await Prestamo.findAll({
-        where: { usuarioId: usuario_id },
-        include: [{ model: Libro, as: 'libro', attributes: ['id', 'titulo', 'autor'] }]
-      });
-
-      return res.json({ success: true, data: loans });
-
-    } catch (err) {
-      next(err);
-    }
+    return res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
   }
+},
+
+async byUser(req, res, next) {
+  try {
+    const { usuario_id } = req.params;
+
+    const user = await Usuario.findByPk(usuario_id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+    }
+
+    const loans = await Prestamo.findAll({
+      where: { usuarioId: usuario_id },
+      include: [{
+        model: Libro,
+        as: 'libro',
+        attributes: ['id', 'titulo', 'autor', 'genero', 'fecha_publicacion']
+      }]
+    });
+
+    const libros = loans.map(loan => loan.libro);
+
+    return res.json({ success: true, data: libros });
+
+  } catch (err) {
+    next(err);
+  }},
 };

@@ -1,3 +1,4 @@
+'use strict';
 const express = require('express');
 const http = require('http');
 const morgan = require('morgan');
@@ -17,10 +18,11 @@ class Server {
       loans: '/api/prestamos'
     };
 
-
     this.dbConnection();
     this.middlewares();
     this.routes();
+    this.notFoundHandler();
+    this.errorHandler();
   }
 
   async dbConnection() {
@@ -40,12 +42,22 @@ class Server {
   }
 
   routes() {
-
     this.app.use(this.paths.auth,  require('./routes/auth.routes'));
-
     this.app.use(this.paths.books, require('./routes/libro.routes'));
-
     this.app.use(this.paths.loans, require('./routes/prestamo.routes'));
+  }
+
+  notFoundHandler() {
+    this.app.use((req, res) => {
+      res.status(404).json({ success: false, error: true, message: 'Endpoint no encontrado' });
+    });
+  }
+
+  errorHandler() {
+    this.app.use((err, req, res, next) => {
+      console.error('Error interno:', err);
+      res.status(500).json({ success: false, error: true, message: err.message || 'Error interno del servidor' });
+    });
   }
 
   listen() {
@@ -56,8 +68,7 @@ class Server {
 }
 
 if (require.main === module) {
-  const server = new Server();
-  server.listen();
+  new Server().listen();
 }
 
 module.exports = Server;
